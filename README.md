@@ -1,38 +1,21 @@
 Script to check validity and expiration of TLS/SSL certificate for given host, port and (optional) servername for TLS SNI.
+Adapted from selivan/https-ssl-cert-check-zabbix
 
 May be used standalone or with Zabbix(user parameters example included).
 
+**Installation on Zabbix server**
+Copy ssl_cert_check.sh to /usr/lib/zabbix/externalscripts
 ```
-user@host:~$ ./ssl_cert_check.sh valid valid.example.com 443
-1
-
-user@host:~$ ./ssl_cert_check.sh valid invalid.example.com 443
-0
-
-# Expired certificate is not valid
-user@host:~$ ./ssl_cert_check.sh valid expired.example.com 443
-0
-
-user@host:~$ ./ssl_cert_check.sh expire effective-next-90-days.example.com 443
-90
-
-user@host:~$ ./ssl_cert_check.sh expire expired-37-days-ago.example.com 443
--37
-
-user@host:~$ ./ssl_cert_check.sh expire unavailable.example.com 443
--65535
-ERROR: Failed to get certificate
-
-# Check 127.0.0.1:443 for a valid certificate for example.com
-# TLS SNI(Server Name Indication) is set to example.com
-user@host:~$ ./ssl_cert_check.sh valid 127.0.0.1 443 example.com
-1
-
-# Check 127.0.0.1:443 for a valid certificate for example.com
-# TLS SNI(Server Name Indication) is set to example.com
-# Check timeout is 10 seconds(default is 3)
-user@host:~$ ./ssl_cert_check.sh valid 127.0.0.1 443 example.com 10
-1
+cd /usr/lib/zabbix/externalscripts
+chmod 755 ssl_cert_check.sh
+chown zabbix:zabbix ssl_cert_check.sh
 ```
-
-**P.S.** If this code is useful for you - don't forget to put a star on it's [github repo](https://github.com/selivan/https-ssl-cert-check-zabbix).
+Import template_zabbix_ssl_checks.xml into Zabbiz templates via the Zabbix UI.
+Assign the template to your hosts that you want to monitor
+Ensure you have a valid entry in each hosts "DNS" field, otherwise it'll fail to run the SSL checks.
+The default port 443 will be used to connect and check the SSL certificate. If you use a different port for a specific host, then do this:
+#Ggo to the Macros tab on your host in Zabbix
+#Click "Inherited and host macros"
+#Press  the "Change" link next to that macro.
+#Change the value for {$SSL_PORT} from 443 to your desired port
+#Press Update button at the bottom of your Macros page.
