@@ -2,7 +2,8 @@ Simple Zabbix script and template for checking validity and expiration of TLS/SS
 Adapted from selivan/https-ssl-cert-check-zabbix
 
 **Installation on Zabbix server**
-Copy ssl_cert_check.sh to /usr/lib/zabbix/externalscripts
+* Copy ssl_cert_check.sh to /usr/lib/zabbix/externalscripts
+* Change ownership and set permissions
 ```
 cd /usr/lib/zabbix/externalscripts
 chmod 755 ssl_cert_check.sh
