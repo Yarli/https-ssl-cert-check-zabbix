@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>4.4</version>
+    <date>2020-06-27T14:12:21Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>SSL Certificate Checks</template>
+            <name>SSL Certificate Checks</name>
+            <description>Simple SSL Certificate Checks</description>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>SSL</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>SSL Certificate Validity (Days)</name>
+                    <type>EXTERNAL</type>
+                    <key>ssl_cert_check.sh[expire,{HOST.IP},{$SSL_PORT}]</key>
+                    <delay>10m</delay>
+                    <units>days</units>
+                    <description>The number of days that the certificate is valid for</description>
+                    <applications>
+                        <application>
+                            <name>SSL</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&lt;=0</expression>
+                            <name>SSL Certificate on {HOST.NAME} has expired</name>
+                            <priority>DISASTER</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;1</expression>
+                            <name>SSL Certificate on {HOST.NAME} will expire in {ITEM.LASTVALUE} days</name>
+                            <priority>HIGH</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>SSL Certificate on {HOST.NAME} has expired</name>
+                                    <expression>{SSL Certificate Checks:ssl_cert_check.sh[expire,{HOST.IP},{$SSL_PORT}].last()}&lt;=0</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;10</expression>
+                            <name>SSL Certificate on {HOST.NAME} will expire in {ITEM.LASTVALUE} days</name>
+                            <priority>AVERAGE</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>SSL Certificate on {HOST.NAME} has expired</name>
+                                    <expression>{SSL Certificate Checks:ssl_cert_check.sh[expire,{HOST.IP},{$SSL_PORT}].last()}&lt;=0</expression>
+                                </dependency>
+                                <dependency>
+                                    <name>SSL Certificate on {HOST.NAME} will expire in {ITEM.LASTVALUE} days</name>
+                                    <expression>{SSL Certificate Checks:ssl_cert_check.sh[expire,{HOST.IP},{$SSL_PORT}].last()}&lt;1</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;20</expression>
+                            <name>SSL Certificate on {HOST.NAME} will expire in {ITEM.LASTVALUE} days</name>
+                            <priority>WARNING</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>SSL Certificate on {HOST.NAME} has expired</name>
+                                    <expression>{SSL Certificate Checks:ssl_cert_check.sh[expire,{HOST.IP},{$SSL_PORT}].last()}&lt;=0</expression>
+                                </dependency>
+                                <dependency>
+                                    <name>SSL Certificate on {HOST.NAME} will expire in {ITEM.LASTVALUE} days</name>
+                                    <expression>{SSL Certificate Checks:ssl_cert_check.sh[expire,{HOST.IP},{$SSL_PORT}].last()}&lt;1</expression>
+                                </dependency>
+                                <dependency>
+                                    <name>SSL Certificate on {HOST.NAME} will expire in {ITEM.LASTVALUE} days</name>
+                                    <expression>{SSL Certificate Checks:ssl_cert_check.sh[expire,{HOST.IP},{$SSL_PORT}].last()}&lt;10</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>SSL Certificate Valid</name>
+                    <type>EXTERNAL</type>
+                    <key>ssl_cert_check.sh[valid,{HOST.DNS},{$SSL_PORT}]</key>
+                    <delay>10m</delay>
+                    <description>If the DNS name for the host is a valid DNS name for the certificate</description>
+                    <applications>
+                        <application>
+                            <name>SSL</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&lt;&gt;1</expression>
+                            <name>SSL Certificate on {HOST.NAME} is not valid</name>
+                            <priority>DISASTER</priority>
+                            <description>The certificate is now valid for the given DNS name for your host.</description>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$SSL_PORT}</macro>
+                    <value>443</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
